@@ -1,14 +1,14 @@
 <template>
-  <h1>{{ message }}</h1>
+  <beer-lister />
 </template>
 
 <script>
+import BeerLister from './components/BeerLister'
+
 export default {
   name: 'App',
-  data () {
-    return {
-      message: 'Hello, Vue!'
-    }
+  components: {
+    BeerLister
   }
 }
 </script>

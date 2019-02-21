@@ -1,6 +1,6 @@
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 module.exports = {
   module: {
@@ -10,18 +10,15 @@ module.exports = {
         use: 'eslint-loader',
         enforce: 'pre',
         exclude: /node_modules/
-      },
-      {
+      }, {
         test: /\.vue$/,
         exclude: /node_modules/,
         loader: 'vue-loader'
-      },
-      {
+      }, {
         test: /\.js$/,
         exclude: /node_modules/,
         loader: 'babel-loader'
-      },
-      {
+      }, {
         test: /(\.scss)$/,
         exclude: /node_modules/,
         use: ExtractTextPlugin.extract({
@@ -37,26 +34,32 @@ module.exports = {
               sourceMap: true,
               plugins: function () {
                 return [
-                    require('autoprefixer')
+                  require('autoprefixer')
                 ]
               }
             }
           }, {
             loader: 'sass-loader',
             options: {
-                sourceMap: true
+              sourceMap: true
             }
           }]
         })
-    }
+      }, {
+        test: /\.css$/,
+        loader: 'style-loader!css-loader'
+      }
     ]
+  },
+  resolve: {
+    extensions: ['.js', '.vue']
   },
   plugins: [
     new VueLoaderPlugin(),
     new HtmlWebpackPlugin({
-      template: "./src/index.html",
-      filename: "./index.html"
+      template: './src/index.html',
+      filename: './index.html'
     }),
     new ExtractTextPlugin('style.css')
   ]
-};
+}

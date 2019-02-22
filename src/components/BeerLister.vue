@@ -13,33 +13,11 @@
               {{ error }}
             </v-alert>
             <v-card class="mb-3">
-              <v-card-title primary-title>
-                <beer-filter />
-              </v-card-title>
+              <beer-filter @submit="getBeers" @reset="reset" />
             </v-card>
-            <v-data-table
-              :headers="headers"
-              :items="beers"
-              :loading="beersLoading"
-              class="elevation-1"
-            >
-              <v-progress-linear slot="progress" color="blue" indeterminate />
-              <template slot="items" slot-scope="props">
-                <td>{{ props.item.name }}</td>
-                <td>
-                  {{ props.item.abv }}
-                </td>
-                <td>
-                  {{ props.item.ibu }}
-                </td>
-                <td>
-                  {{ props.item.first_brewed }}
-                </td>
-                <td>
-                  {{ props.item.tagline }}
-                </td>
-              </template>
-            </v-data-table>
+            <v-slide-y-transition>
+              <beer-table v-show="searched" :beers="beers" :beers-loading="beersLoading" />
+            </v-slide-y-transition>
           </v-flex>
         </v-layout>
       </v-container>
@@ -50,38 +28,48 @@
 <script>
 import BeerService from '../service/BeerService'
 import BeerFilter from './BeerFilter'
+import BeerTable from './BeerTable'
 
 export default {
-  name: 'BeerTable',
+  name: 'BeerLister',
   components: {
-    BeerFilter
+    BeerFilter,
+    BeerTable
   },
   data: () => ({
     beers: [],
-    headers: [
-      { text: 'Name', value: 'name' },
-      { text: 'Alcohol By Volume (%)', value: 'abv' },
-      { text: 'Bitterness (0-100)', value: 'ibu' },
-      { text: 'First brewed', value: 'first_brewed' },
-      { text: 'Tagline', value: 'tagline' }
-    ],
     error: null,
-    beersLoading: false
+    beersLoading: false,
+    searched: false
   }),
-  created () {
-    this.getBeers()
-  },
   methods: {
-    async getBeers () {
+    async getBeers ({ name, brewedBefore, food, abv, ibu }) {
       try {
         this.beersLoading = true
-        const { data } = await BeerService.getBeers()
+        this.error = null
+
+        const { data } = await BeerService.getBeers({
+          beer_name: name || null,
+          brewed_before: brewedBefore || null,
+          food: food || null,
+          abv_gt: abv[0],
+          abv_lt: abv[1],
+          ibu_gt: ibu[0],
+          ibu_lt: ibu[1]
+        })
+
         this.beersLoading = false
         this.beers = data
-      } catch (e) {
-        this.error = e
-        console.error(e)
+        this.searched = true
+      } catch (error) {
+        console.error(error)
+        this.error = error.response.data.message
       }
+    },
+    reset () {
+      this.searched = false
+      this.error = null
+      this.beers = []
     }
   }
 }
